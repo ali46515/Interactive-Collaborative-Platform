@@ -1,26 +1,49 @@
 import mongoose from "mongoose";
-import { config } from "dotenv";
-import { expand } from "dotenv-expand";
-expand(config());
+import env from "./env";
 
-const connectDB = async () => {
+const MONGO_OPTIONS = {
+  serverSelectionTimeoutMS: 5000,
+  socketTimeoutMS: 45000,
+  maxPoolSize: 20,
+  minPoolSize: 5,
+};
+
+let isConnected = false;
+
+const connect = async () => {
+  if (isConnected) return;
+
   try {
-    const conn = await mongoose.connect(process.env.MONGO_URI, {
-      serverSelectionTimeoutMS: 5000,
+    await mongoose.connect(env.MONGO_URI, MONGO_OPTIONS);
+    isConnected = true;
+    console.log("MongoDB connected", {
+      uri: env.MONGO_URI.replace(/\/\/.*@/, "//***@"),
     });
-    console.log(`MongoDB connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`MongoDB connection failed: ${error.message}`);
-    process.exit(1);
+  } catch (err) {
+    console.error("MongoDB connection failed", { error: err.message });
+    throw err;
   }
 };
 
+const disconnect = async () => {
+  if (!isConnected) return;
+  await mongoose.disconnect();
+  isConnected = false;
+  console.log("MongoDB disconnected");
+};
+
 mongoose.connection.on("disconnected", () => {
-  console.warn("MongoDB disconnected");
+  isConnected = false;
+  console.warn("MongoDB disconnected — attempting reconnect...");
 });
 
 mongoose.connection.on("reconnected", () => {
+  isConnected = true;
   console.log("MongoDB reconnected");
 });
 
-export { connectDB };
+mongoose.connection.on("error", (err) => {
+  console.error("MongoDB error", { error: err.message });
+});
+
+export { connect, disconnect };
