@@ -1,14 +1,30 @@
 import { Server } from "socket.io";
-import { registerSocketHandlers } from "../sockets/index.js";
+import env from "./env.js";
 
-const initSocket = (server) => {
-  const io = new Server(server, {
-    cors: { origin: "*" },
+let io = null;
+
+const init = (httpServer) => {
+  io = new Server(httpServer, {
+    cors: {
+      origin: env.CLIENT_URL,
+      methods: ["GET", "POST"],
+      credentials: true,
+    },
+    transports: ["websocket", "polling"],
+    pingTimeout: 60000,
+    pingInterval: 25000,
+    upgradeTimeout: 10000,
+    maxHttpBufferSize: 1e6,
   });
 
-  registerSocketHandlers(io);
-
+  console.log("Socket.io initialized", { clientUrl: env.CLIENT_URL });
   return io;
 };
 
-export { initSocket };
+const getIO = () => {
+  if (!io)
+    throw new Error("Socket.io has not been initialized. Call init() first.");
+  return io;
+};
+
+export { init, getIO };
