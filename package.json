@@ -1,0 +1,12 @@
+{
+  "name": "interactive-collaborative-platform",
+  "version": "1.0.0",
+  "description": "The Real-Time Collaborative Coding Platform is a web-based application designed to enable multiple users to collaboratively write, edit, and execute code in real time.",
+  "license": "MIT",
+  "author": "",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  }
+}
