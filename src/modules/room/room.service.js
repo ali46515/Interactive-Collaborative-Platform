@@ -36,6 +36,43 @@ const createRoom = async (
   return room;
 };
 
+const getRoomBySlug = async (slug, includePassword = false) => {
+  const query = Room.findOne({ slug }).populate(
+    "members.user",
+    "username avatar lastSeen",
+  );
+  if (includePassword) query.select("+password");
+  const room = await query;
+  if (!room) {
+    const err = new Error("Room not found");
+    err.statusCode = 404;
+    throw err;
+  }
+  return room;
+};
+
+const getRoomById = async (roomId) => {
+  const room = await Room.findById(roomId).populate(
+    "members.user",
+    "username avatar lastSeen",
+  );
+  if (!room) {
+    const err = new Error("Room not found");
+    err.statusCode = 404;
+    throw err;
+  }
+  return room;
+};
+
+const listUserRooms = async (userId) => {
+  return Room.find({
+    "members.user": userId,
+    status: ROOM_STATUS.ACTIVE,
+  })
+    .populate("members.user", "username avatar")
+    .sort({ updatedAt: -1 });
+};
+
 const joinRoom = async (userId, slug, password) => {
   const room = await Room.findOne({ slug }).select("+password");
   if (!room) {
