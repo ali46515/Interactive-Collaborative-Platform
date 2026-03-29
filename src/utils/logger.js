@@ -34,4 +34,4 @@ const logger = winston.createLogger({
   rejectionHandlers: [new winston.transports.Console()],
 });
 
-export { logger };
+export default logger;
