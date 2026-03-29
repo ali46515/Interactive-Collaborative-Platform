@@ -1,12 +1,24 @@
-import { v4 as uuid } from "uuid";
-import Room from "./room.model.js";
+import roomService from "./room.service.js";
+import { success, error } from "../../utils/response.js";
+import asyncHandler from "../../utils/asyncHandler.js";
 
-const createRoom = async (req, res) => {
-  const roomId = uuid();
+const createRoom = asyncHandler(async (req, res) => {
+  const room = await roomService.createRoom(req.user._id, req.body);
+  return success(res, 201, "Room created", { room });
+});
 
-  const room = await Room.create({ roomId });
+const joinRoom = asyncHandler(async (req, res) => {
+  const room = await roomService.joinRoom(
+    req.user._id,
+    req.params.slug,
+    req.body.password,
+  );
+  return success(res, 200, "Joined room", { room });
+});
 
-  res.json({ roomId: room.roomId });
-};
+const leaveRoom = asyncHandler(async (req, res) => {
+  await roomService.leaveRoom(req.user._id, req.params.id);
+  return success(res, 200, "Left room");
+});
 
-export { createRoom };
+export { createRoom, joinRoom, leaveRoom };
