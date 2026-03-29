@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import env from "./env.js";
+import { logger } from "../utils/logger.js";
 
 const MONGO_OPTIONS = {
   serverSelectionTimeoutMS: 5000,
@@ -16,11 +17,11 @@ const connect = async () => {
   try {
     await mongoose.connect(env.MONGO_URI, MONGO_OPTIONS);
     isConnected = true;
-    console.log("MongoDB connected", {
+    logger.info("MongoDB connected", {
       uri: env.MONGO_URI.replace(/\/\/.*@/, "//***@"),
     });
   } catch (err) {
-    console.error("MongoDB connection failed", { error: err.message });
+    logger.error("MongoDB connection failed", { error: err.message });
     throw err;
   }
 };
@@ -29,21 +30,21 @@ const disconnect = async () => {
   if (!isConnected) return;
   await mongoose.disconnect();
   isConnected = false;
-  console.log("MongoDB disconnected");
+  logger.info("MongoDB disconnected");
 };
 
 mongoose.connection.on("disconnected", () => {
   isConnected = false;
-  console.warn("MongoDB disconnected — attempting reconnect...");
+  logger.warn("MongoDB disconnected — attempting reconnect...");
 });
 
 mongoose.connection.on("reconnected", () => {
   isConnected = true;
-  console.log("MongoDB reconnected");
+  logger.info("MongoDB reconnected");
 });
 
 mongoose.connection.on("error", (err) => {
-  console.error("MongoDB error", { error: err.message });
+  logger.error("MongoDB error", { error: err.message });
 });
 
 export { connect, disconnect };

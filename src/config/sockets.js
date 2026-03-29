@@ -1,5 +1,6 @@
 import { Server } from "socket.io";
 import env from "./env.js";
+import { logger } from "../utils/logger.js";
 
 let io = null;
 
@@ -17,7 +18,7 @@ const init = (httpServer) => {
     maxHttpBufferSize: 1e6,
   });
 
-  console.log("Socket.io initialized", { clientUrl: env.CLIENT_URL });
+  logger.info("Socket.io initialized", { clientUrl: env.CLIENT_URL });
   return io;
 };
 
