@@ -65,4 +65,4 @@ const requireRole =
     next();
   };
 
-module.exports = { protect, protectSocket, requireRole };
+export { protect, protectSocket, requireRole };
