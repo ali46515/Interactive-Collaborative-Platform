@@ -1,10 +1,10 @@
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import env from "../../config/env";
-import { client as redis } from "../../config/redis";
+import { client as redis } from "../../config/redis.js";
 import User from "./auth.model";
-import { TOKEN_TYPES, REDIS_KEYS } from "../../utils/constants";
-import logger from "../../utils/logger";
+import { TOKEN_TYPES, REDIS_KEYS } from "../../utils/constants.js";
+import logger from "../../utils/logger.js";
 
 const generateAccessToken = (userId) => {
   const jti = uuidv4();
