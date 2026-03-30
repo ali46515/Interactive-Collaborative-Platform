@@ -6,4 +6,4 @@ const EVENTS = {
   CHAT_MESSAGE: "chat_message",
 };
 
-export { EVENTS };
+export default EVENTS;
