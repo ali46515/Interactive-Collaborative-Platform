@@ -1,8 +1,9 @@
 import { getRoomBySlug } from "./room.service.js";
+import EVENTS from "../../sockets/events.js";
 import logger from "../../utils/logger.js";
 
 const register = (io, socket) => {
-  socket.on("events", async ({ roomSlug }, callback) => {
+  socket.on(EVENTS.ROOM.JOIN, async ({ roomSlug }, callback) => {
     try {
       const room = await getRoomBySlug(roomSlug);
       const roomId = room._id.toString();
@@ -14,13 +15,21 @@ const register = (io, socket) => {
       await socket.join(roomId);
       socket.currentRoomId = roomId;
 
-      socket.to(roomId).emit("events", {
+      await presenceService.userJoinedRoom(
+        socket.userId,
+        roomId,
+        socket.user.username,
+      );
+
+      socket.to(roomId).emit(EVENTS.PRESENCE.USER_JOINED, {
         userId: socket.userId,
         username: socket.user.username,
         avatar: socket.user.avatar,
       });
 
-      callback?.({ success: true, room });
+      const activeUsers = await presenceService.getRoomUsers(roomId);
+
+      callback?.({ success: true, room, activeUsers });
 
       logger.info("Socket joined room", { userId: socket.userId, roomId });
     } catch (err) {
@@ -32,12 +41,12 @@ const register = (io, socket) => {
     }
   });
 
-  socket.on("events", async ({ roomId }, callback) => {
+  socket.on(EVENTS.ROOM.LEAVE, async ({ roomId }, callback) => {
     try {
       await socket.leave(roomId);
       await presenceService.userLeftRoom(socket.userId, roomId);
 
-      socket.to(roomId).emit("events", {
+      socket.to(roomId).emit(EVENTS.PRESENCE.USER_LEFT, {
         userId: socket.userId,
         username: socket.user.username,
       });
@@ -56,7 +65,7 @@ const register = (io, socket) => {
     const rooms = Array.from(socket.rooms).filter((r) => r !== socket.id);
     for (const roomId of rooms) {
       await presenceService.userLeftRoom(socket.userId, roomId);
-      socket.to(roomId).emit("events", {
+      socket.to(roomId).emit(EVENTS.PRESENCE.USER_LEFT, {
         userId: socket.userId,
         username: socket.user?.username,
       });

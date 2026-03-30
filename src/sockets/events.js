@@ -1,9 +1,17 @@
 const EVENTS = {
-  JOIN_ROOM: "join_room",
-  USER_JOINED: "user_joined",
-  CODE_CHANGE: "code_change",
-  CODE_UPDATE: "code_update",
-  CHAT_MESSAGE: "chat_message",
+  ROOM: {
+    JOIN: "room:join",
+    LEAVE: "room:leave",
+    UPDATED: "room:updated",
+    ARCHIVED: "room:archived",
+  },
+
+  PRESENCE: {
+    USER_JOINED: "presence:user_joined",
+    USER_LEFT: "presence:user_left",
+    USER_LIST: "presence:user_list",
+    TYPING: "presence:typing",
+  },
 };
 
 export default EVENTS;
