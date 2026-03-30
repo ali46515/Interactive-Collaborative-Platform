@@ -1,4 +1,9 @@
 import { getRoomBySlug } from "./room.service.js";
+import {
+  userJoinedRoom,
+  getRoomUsers,
+  userLeftRoom,
+} from "../presence/presence.service.js";
 import EVENTS from "../../sockets/events.js";
 import logger from "../../utils/logger.js";
 
@@ -15,11 +20,7 @@ const register = (io, socket) => {
       await socket.join(roomId);
       socket.currentRoomId = roomId;
 
-      await presenceService.userJoinedRoom(
-        socket.userId,
-        roomId,
-        socket.user.username,
-      );
+      await userJoinedRoom(socket.userId, roomId, socket.user.username);
 
       socket.to(roomId).emit(EVENTS.PRESENCE.USER_JOINED, {
         userId: socket.userId,
@@ -27,7 +28,7 @@ const register = (io, socket) => {
         avatar: socket.user.avatar,
       });
 
-      const activeUsers = await presenceService.getRoomUsers(roomId);
+      const activeUsers = await getRoomUsers(roomId);
 
       callback?.({ success: true, room, activeUsers });
 
@@ -44,7 +45,7 @@ const register = (io, socket) => {
   socket.on(EVENTS.ROOM.LEAVE, async ({ roomId }, callback) => {
     try {
       await socket.leave(roomId);
-      await presenceService.userLeftRoom(socket.userId, roomId);
+      await userLeftRoom(socket.userId, roomId);
 
       socket.to(roomId).emit(EVENTS.PRESENCE.USER_LEFT, {
         userId: socket.userId,
@@ -64,7 +65,7 @@ const register = (io, socket) => {
   socket.on("disconnecting", async () => {
     const rooms = Array.from(socket.rooms).filter((r) => r !== socket.id);
     for (const roomId of rooms) {
-      await presenceService.userLeftRoom(socket.userId, roomId);
+      await userLeftRoom(socket.userId, roomId);
       socket.to(roomId).emit(EVENTS.PRESENCE.USER_LEFT, {
         userId: socket.userId,
         username: socket.user?.username,
