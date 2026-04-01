@@ -1,5 +1,7 @@
-import {run as dockerRun, warmupImages} from "../modules/execution/sandbox/dockerRunner.js";
-import {run, getSupportedLanguages, isAvailable} from "../modules/execution/sandbox/vmRunner.js";
+import {
+  run as dockerRun,
+  warmupImages,
+} from "../modules/execution/sandbox/dockerRunner.js";
 import { SUPPORTED_LANGUAGES } from "../utils/constants.js";
 import logger from "../utils/logger.js";
 
@@ -28,14 +30,8 @@ const run = async (language, code, stdin = "") => {
   const dockerAvailable = await checkDockerAvailable();
 
   if (!dockerAvailable) {
-    if (!getSupportedLanguages().includes(language)) {
-      throw new Error(
-        `Docker is unavailable and language "${language}" is not supported by the VM runner. ` +
-          `Only JavaScript can run without Docker.`,
-      );
-    }
-    logger.info("Using VM runner (Docker unavailable)", { language });
-    return run(language, code, stdin);
+    // Didn't implement any vm services currently
+    return null;
   }
 
   return dockerRun(language, code, stdin);
