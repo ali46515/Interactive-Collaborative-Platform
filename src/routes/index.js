@@ -11,13 +11,13 @@ router.get("/health", (req, res) => {
   });
 });
 
-router.use("/auth", authLimiter, require("../modules/auth/auth.routes"));
-router.use("/rooms", require("../modules/room/room.routes"));
-router.use("/users", require("../modules/user/user.controller"));
+router.use("/auth", authLimiter, import("../modules/auth/auth.routes.js"));
+router.use("/rooms", import("../modules/room/room.routes.js"));
+router.use("/users", import("../modules/user/user.controller.js"));
 router.use(
   "/execution",
   executionLimiter,
-  require("../modules/execution/execution.controller"),
+  import("../modules/execution/execution.controller.js"),
 );
 
 router.use((req, res) => {

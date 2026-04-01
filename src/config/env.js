@@ -45,4 +45,4 @@ const envVars = {
   IS_TEST: process.env.NODE_ENV === "test",
 };
 
-export { envVars };
+export default envVars;

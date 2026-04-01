@@ -10,6 +10,7 @@ import { connect, disconnect } from "./config/redis.js";
 import env from "./config/env.js";
 import logger from "./utils/logger.js";
 import { warmupImages } from "./modules/execution/sandbox/dockerRunner.js";
+import { scheduleDaily } from "./jobs/cleanup.job.js";
 
 const server = http.createServer(app);
 
@@ -29,6 +30,8 @@ const start = async () => {
         error: err.message,
       }),
     );
+
+    scheduleDaily();
 
     server.listen(env.PORT, () => {
       logger.info(`Server running on port ${env.PORT}`, {
