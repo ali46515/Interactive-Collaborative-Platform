@@ -1,8 +1,11 @@
 import http from "http";
 import app from "./app.js";
-import { init as initSocket } from "./config/socket.js";
+import { init as initSocket } from "./config/sockets.js";
 import { initSockets } from "./sockets/index.js";
-import { connect, disconnect } from "./config/db.js";
+import {
+  connect as dbConnect,
+  disconnect as dbDisconnect,
+} from "./config/db.js";
 import { connect, disconnect } from "./config/redis.js";
 import env from "./config/env.js";
 import logger from "./utils/logger.js";
@@ -10,9 +13,11 @@ import { warmupImages } from "./modules/execution/sandbox/dockerRunner.js";
 
 const server = http.createServer(app);
 
+console.log(import("./app.js"));
+
 const start = async () => {
   try {
-    await connect();
+    await dbConnect();
     await connect();
 
     initSocket(server);
@@ -44,7 +49,7 @@ const shutdown = async (signal) => {
   logger.info(`Received ${signal} shutting down gracefully...`);
   server.close(async () => {
     try {
-      await disconnect();
+      await dbDisconnect();
       await disconnect();
       logger.info("Graceful shutdown complete");
       process.exit(0);

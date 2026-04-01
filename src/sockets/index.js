@@ -1,7 +1,7 @@
 import { getIO } from "../config/socket.js";
 import { protectSocket } from "../modules/auth/auth.middleware.js";
-import { register } from "../modules/room/room.socket.js";
-import { register } from "../modules/code/code.socket.js";
+import { register as roomRegister } from "../modules/room/room.socket.js";
+import { register as socketRegister } from "../modules/code/code.socket.js";
 import { register } from "../modules/presence/presence.socket.js";
 import { sub } from "../config/redis.js";
 import EVENTS from "./events.js";
